@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CadastroPage extends StatefulWidget {
   @override
@@ -10,6 +11,8 @@ class _CadastroPageState extends State<CadastroPage> {
   TextEditingController confirmarSenhaController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController dataNascimentoController = TextEditingController();
+  TextEditingController primeiroNomeController = TextEditingController();
+  TextEditingController ultimoNomeController = TextEditingController();
   bool isButtonEnabled = false;
 
   List<int> dias = List.generate(31, (index) => index + 1);
@@ -45,6 +48,8 @@ class _CadastroPageState extends State<CadastroPage> {
     confirmarSenhaController.addListener(validateFields);
     emailController.addListener(validateFields);
     dataNascimentoController.addListener(validateFields);
+    primeiroNomeController.addListener(validateFields);
+    ultimoNomeController.addListener(validateFields);
   }
 
   String? validateEmail(String? value) {
@@ -68,10 +73,19 @@ class _CadastroPageState extends State<CadastroPage> {
     return null;
   }
 
+  String? validateName(String? value) {
+    if (value != null && value.isEmpty) {
+      return 'Campo obrigatório';
+    }
+    return null;
+  }
+
   void validateFields() {
     final senha = senhaController.text;
     final confirmarSenha = confirmarSenhaController.text;
     final email = emailController.text;
+    final primeiroNome = primeiroNomeController.text;
+    final ultimoNome = ultimoNomeController.text;
 
     setState(() {
       isButtonEnabled = senha.isNotEmpty &&
@@ -79,8 +93,15 @@ class _CadastroPageState extends State<CadastroPage> {
           senha == confirmarSenha &&
           (email.isEmpty || emailRegex.hasMatch(email)) &&
           (dataNascimentoController.text.isEmpty ||
-              dataNascimentoController.text.trim().isNotEmpty);
+              dataNascimentoController.text.trim().isNotEmpty) &&
+          validateName(primeiroNome) == null &&
+          validateName(ultimoNome) == null;
     });
+  }
+
+  String nameFormatter(String text) {
+    if (text.isEmpty) return text;
+    return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
   }
 
   @override
@@ -89,6 +110,8 @@ class _CadastroPageState extends State<CadastroPage> {
     confirmarSenhaController.dispose();
     emailController.dispose();
     dataNascimentoController.dispose();
+    primeiroNomeController.dispose();
+    ultimoNomeController.dispose();
     super.dispose();
   }
 
@@ -114,9 +137,36 @@ class _CadastroPageState extends State<CadastroPage> {
                 children: [
                   TextFormField(
                     decoration: InputDecoration(labelText: 'Primeiro nome'),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                    ],
+                    controller: primeiroNomeController,
+                    onChanged: (value) {
+                      primeiroNomeController.text = nameFormatter(value);
+                      primeiroNomeController.selection =
+                          TextSelection.fromPosition(
+                        TextPosition(
+                            offset: primeiroNomeController.text.length),
+                      );
+                      validateFields();
+                    },
+                    validator: validateName,
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: 'Último nome'),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                    ],
+                    controller: ultimoNomeController,
+                    onChanged: (value) {
+                      ultimoNomeController.text = nameFormatter(value);
+                      ultimoNomeController.selection =
+                          TextSelection.fromPosition(
+                        TextPosition(offset: ultimoNomeController.text.length),
+                      );
+                      validateFields();
+                    },
+                    validator: validateName,
                   ),
                   TextFormField(
                     controller: emailController,
