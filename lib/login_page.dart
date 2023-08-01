@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'cadastro_page.dart';
+import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -57,15 +58,22 @@ class _LoginPageState extends State<LoginPage> {
         token = responseData['token'];
         message = null;
       });
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(token: token!),
+        ),
+      );
     } else {
       setState(() {
         token = null;
         message = responseData['mensagem'];
       });
-    }
 
-    if (message != null) {
-      _showAlertDialog(context, 'Login Error', message!);
+      if (message != null) {
+        _showAlertDialog(context, 'Login Error', message!);
+      }
     }
   }
 
