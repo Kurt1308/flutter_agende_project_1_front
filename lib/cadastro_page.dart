@@ -8,6 +8,8 @@ class CadastroPage extends StatefulWidget {
 class _CadastroPageState extends State<CadastroPage> {
   TextEditingController senhaController = TextEditingController();
   TextEditingController confirmarSenhaController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController dataNascimentoController = TextEditingController();
   bool isButtonEnabled = false;
 
   List<int> dias = List.generate(31, (index) => index + 1);
@@ -31,22 +33,32 @@ class _CadastroPageState extends State<CadastroPage> {
   String selectedMes = 'Jan';
   String selectedAno = '2023';
 
+  final RegExp emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+  );
+
   @override
   void initState() {
     super.initState();
 
     senhaController.addListener(validateFields);
     confirmarSenhaController.addListener(validateFields);
+    emailController.addListener(validateFields);
+    dataNascimentoController.addListener(validateFields);
   }
 
   void validateFields() {
     final senha = senhaController.text;
     final confirmarSenha = confirmarSenhaController.text;
+    final email = emailController.text;
 
     setState(() {
       isButtonEnabled = senha.isNotEmpty &&
           confirmarSenha.isNotEmpty &&
-          senha == confirmarSenha;
+          senha == confirmarSenha &&
+          emailRegex.hasMatch(email) &&
+          (dataNascimentoController.text.isEmpty ||
+              dataNascimentoController.text.trim().isNotEmpty);
     });
   }
 
@@ -54,6 +66,8 @@ class _CadastroPageState extends State<CadastroPage> {
   void dispose() {
     senhaController.dispose();
     confirmarSenhaController.dispose();
+    emailController.dispose();
+    dataNascimentoController.dispose();
     super.dispose();
   }
 
@@ -62,9 +76,8 @@ class _CadastroPageState extends State<CadastroPage> {
     final TextStyle inputTextStyle = Theme.of(context).textTheme.bodyText1!;
     final TextStyle labelStyle = inputTextStyle.copyWith(
       color: Colors.grey,
-      fontSize:
-          inputTextStyle.fontSize! + 2.0, // Aumentando a fonte em 2 pontos
-      fontWeight: FontWeight.normal, // Removendo o negrito
+      fontSize: inputTextStyle.fontSize! + 2.0,
+      fontWeight: FontWeight.normal,
     );
 
     return Scaffold(
@@ -83,6 +96,7 @@ class _CadastroPageState extends State<CadastroPage> {
                   decoration: InputDecoration(labelText: 'Último nome'),
                 ),
                 TextFormField(
+                  controller: emailController,
                   decoration: InputDecoration(labelText: 'E-mail'),
                 ),
                 SizedBox(height: 8.0),
@@ -91,7 +105,7 @@ class _CadastroPageState extends State<CadastroPage> {
                   children: [
                     Text(
                       'Nascimento:',
-                      style: labelStyle, // Utilizando o novo estilo do label
+                      style: labelStyle,
                     ),
                     Row(
                       children: [
@@ -100,6 +114,9 @@ class _CadastroPageState extends State<CadastroPage> {
                           onChanged: (String? newValue) {
                             setState(() {
                               selectedDia = newValue!;
+                              if (dataNascimentoController.text.isNotEmpty) {
+                                validateFields();
+                              }
                             });
                           },
                           items:
@@ -119,6 +136,9 @@ class _CadastroPageState extends State<CadastroPage> {
                           onChanged: (String? newValue) {
                             setState(() {
                               selectedMes = newValue!;
+                              if (dataNascimentoController.text.isNotEmpty) {
+                                validateFields();
+                              }
                             });
                           },
                           items: meses
@@ -138,6 +158,9 @@ class _CadastroPageState extends State<CadastroPage> {
                           onChanged: (String? newValue) {
                             setState(() {
                               selectedAno = newValue!;
+                              if (dataNascimentoController.text.isNotEmpty) {
+                                validateFields();
+                              }
                             });
                           },
                           items:
