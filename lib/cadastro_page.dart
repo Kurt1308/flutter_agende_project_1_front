@@ -13,6 +13,8 @@ class _CadastroPageState extends State<CadastroPage> {
   TextEditingController dataNascimentoController = TextEditingController();
   TextEditingController primeiroNomeController = TextEditingController();
   TextEditingController ultimoNomeController = TextEditingController();
+  TextEditingController codigoEstabelecimentoController =
+      TextEditingController();
   bool isButtonEnabled = false;
 
   List<int> dias = List.generate(31, (index) => index + 1);
@@ -50,6 +52,7 @@ class _CadastroPageState extends State<CadastroPage> {
     dataNascimentoController.addListener(validateFields);
     primeiroNomeController.addListener(validateFields);
     ultimoNomeController.addListener(validateFields);
+    codigoEstabelecimentoController.addListener(validateFields);
   }
 
   String? validateEmail(String? value) {
@@ -80,12 +83,22 @@ class _CadastroPageState extends State<CadastroPage> {
     return null;
   }
 
+  String? validateCodigoEstabelecimento(String? value) {
+    if (value != null &&
+        !value.isEmpty &&
+        !RegExp(r'^[0-9]+$').hasMatch(value)) {
+      return 'O código deve conter apenas números';
+    }
+    return null;
+  }
+
   void validateFields() {
     final senha = senhaController.text;
     final confirmarSenha = confirmarSenhaController.text;
     final email = emailController.text;
     final primeiroNome = primeiroNomeController.text;
     final ultimoNome = ultimoNomeController.text;
+    final codigoEstabelecimento = codigoEstabelecimentoController.text;
 
     setState(() {
       isButtonEnabled = senha.isNotEmpty &&
@@ -95,7 +108,8 @@ class _CadastroPageState extends State<CadastroPage> {
           (dataNascimentoController.text.isEmpty ||
               dataNascimentoController.text.trim().isNotEmpty) &&
           validateName(primeiroNome) == null &&
-          validateName(ultimoNome) == null;
+          validateName(ultimoNome) == null &&
+          validateCodigoEstabelecimento(codigoEstabelecimento) == null;
     });
   }
 
@@ -112,6 +126,7 @@ class _CadastroPageState extends State<CadastroPage> {
     dataNascimentoController.dispose();
     primeiroNomeController.dispose();
     ultimoNomeController.dispose();
+    codigoEstabelecimentoController.dispose();
     super.dispose();
   }
 
@@ -255,6 +270,11 @@ class _CadastroPageState extends State<CadastroPage> {
                   TextFormField(
                     decoration:
                         InputDecoration(labelText: 'Código estabelecimento'),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                    ],
+                    controller: codigoEstabelecimentoController,
+                    validator: validateCodigoEstabelecimento,
                   ),
                   TextFormField(
                     controller: senhaController,
